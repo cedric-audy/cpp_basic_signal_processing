@@ -54,10 +54,10 @@ private slots:
 
 	//for testing
     virtual void processDispatch(QImage const & image);
-	void boxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int size, bool vertical);
-	void maxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int size, bool vertical);
-	void uniformize(std::vector<unsigned char> &original, std::vector<unsigned char> const &map);
-	//
+	//void boxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int size, bool vertical);
+	//void maxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int size, bool vertical);
+	//void uniformize(std::vector<unsigned char> &original, std::vector<unsigned char> const &map);
+	////
 
 
 	void updateGui();

@@ -20,6 +20,5 @@ public:
 	void setVertical(bool b);
 
 	MaxMinFilterStrategy();
-	MaxMinFilterStrategy(std::vector<Grayscale1DImage>* input, int kernelSize, bool vertical);
 };
 

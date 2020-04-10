@@ -22,6 +22,5 @@ public:
 	void addInput(Grayscale1DImage i);
 	void clearInput();
 	ProcessStrategy() = default;
-	ProcessStrategy(std::vector<Grayscale1DImage>* input);
 
 };

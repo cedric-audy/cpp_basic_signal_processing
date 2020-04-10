@@ -7,6 +7,8 @@ enum GrayscaleType
 	CHANNEL2,
 	CHANNEL3,
 	CHANNEL4,
-	LIGHTMAP
+	LIGHTMAP,
+	SOBEL_H,
+	SOBEL_V,
 
 };

@@ -4,6 +4,11 @@
 #include "UniformizeStrategy.h"
 #include "LightmapStrategy.h"
 #include "MeanStrategy.h"
+#include "DerivativeStrategy.h"
+#include "Tiny1DGaussStrategy.h"
+#include "TresholderStrategy.h"
+#include "SobelDecoupleStrategy.h"
+#include "SobelRecoupleStrategy.h"
 IPPipeline::IPPipeline()
 	:mCurrImage{2}, mProcesses{ 20 }, currOutput{}
 {
@@ -41,6 +46,35 @@ void IPPipeline::addStep(ProcessStrategy * step)
 {
 	UniformizeStrategy * a = new UniformizeStrategy();
 	mProcesses[0] = a;
+
+	SobelDecoupleStrategy * a2 = new SobelDecoupleStrategy();
+	mProcesses[1] = a2;
+
+	Tiny1DGaussStrategy * b = new Tiny1DGaussStrategy();
+	b->setVertical(true);
+	mProcesses[2] = b;
+
+	DerivativeStrategy * c = new DerivativeStrategy();
+	c->setVertical(true);
+	mProcesses[3] = c;
+	
+	Tiny1DGaussStrategy * b2 = new Tiny1DGaussStrategy();
+	b2->setVertical(false);
+	mProcesses[4] = b2;
+
+	DerivativeStrategy * c2 = new DerivativeStrategy();
+	c2->setVertical(false);
+	mProcesses[5] = c2;
+
+	//MeanStrategy * e = new MeanStrategy();
+	SobelRecoupleStrategy * e = new SobelRecoupleStrategy();
+	mProcesses[6] = e;
+
+
+	TresholderStrategy * d = new TresholderStrategy();
+	mProcesses[7] = d;
+
+
 }
 
 void IPPipeline::defaultLightmapProcess()
@@ -65,11 +99,11 @@ void IPPipeline::defaultLightmapProcess()
 
 	//MAX
 	MaxMinFilterStrategy * d = new MaxMinFilterStrategy();
-	d->setKernelSize(15);
+	d->setKernelSize(11);
 	d->setVertical(true);
 
 	MaxMinFilterStrategy * e = new MaxMinFilterStrategy();
-	e->setKernelSize(15);
+	e->setKernelSize(11);
 	e->setVertical(false);
 
 	mProcesses[7] = d;
@@ -81,23 +115,14 @@ void IPPipeline::defaultLightmapProcess()
 	BoxFilterStrategy * g = new BoxFilterStrategy();
 	g->setVertical(true);
 
-	f->setKernelSize(151);
-	g->setKernelSize(151);
+	f->setKernelSize(99);
+	g->setKernelSize(99);
 	mProcesses[9] = f;
 	mProcesses[10] = g;
 	mProcesses[11] = f;
 	mProcesses[12] = g;
 	mProcesses[13] = f;
 	mProcesses[14] = g;
-
-	//LightmapStrategy * e = new LightmapStrategy();
-
-	//mProcesses[14] = e;
-
-	//UniformizeStrategy * f = new UniformizeStrategy();
-
-	//mProcesses[15] = f;
-
 
 }
 

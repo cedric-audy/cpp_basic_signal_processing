@@ -155,7 +155,7 @@ void ImgDemo::updateGui()
 }
 
 void zipData(int * in_beg, int * in_end, unsigned char * out) {
-	//dont know of good practice
+	//dont know if good practice
 		while (in_beg < in_end) {
 
 			unsigned char average{ *out };
@@ -170,39 +170,36 @@ void zipData(int * in_beg, int * in_end, unsigned char * out) {
 
 }
 
-void zipDataColor(int * in_beg, int * in_end, unsigned char * out) {
-
-	while (in_beg < in_end) {
-		int c{ *in_beg };
-		unsigned char r{ static_cast<unsigned char>((c & 0x00'FF'00'00) >> 16) };
-		unsigned char g{ static_cast<unsigned char>((c & 0x00'00'FF'00) >> 8) };
-		unsigned char b{ static_cast<unsigned char>((c & 0x00'00'00'FF) >> 0) };
-
-		unsigned char average{ *out };
-		r /= average;
-		g /= average;
-		b /= average;
-
-		*in_beg = (r << 16) |
-			(g << 8) |
-			(b << 0) |
-			0xff'00'00'00;
-
-		++out;
-		++in_beg;
-	}
-
-}
+//void zipDataColor(int * in_beg, int * in_end, unsigned char * out) {
+//
+//	while (in_beg < in_end) {
+//		int c{ *in_beg };
+//		unsigned char r{ static_cast<unsigned char>((c & 0x00'FF'00'00) >> 16) };
+//		unsigned char g{ static_cast<unsigned char>((c & 0x00'00'FF'00) >> 8) };
+//		unsigned char b{ static_cast<unsigned char>((c & 0x00'00'00'FF) >> 0) };
+//
+//		unsigned char average{ *out };
+//		r /= average;
+//		g /= average;
+//		b /= average;
+//
+//		*in_beg = (r << 16) |
+//			(g << 8) |
+//			(b << 0) |
+//			0xff'00'00'00;
+//
+//		++out;
+//		++in_beg;
+//	}
+//
+//}
 
 void ImgDemo::processDispatch(QImage const & image)
 {
-    QImage::Format f{ image.format() }; // ?
-
-
-	//hardcoded number of ref imgs
 	if (mCreatingMap) {
 		QImage im(image);
 		mLightmapPipeline.pushImg(im);
+		//hardcoded number of ref imgs
 		if (mLightmapPipeline.inputSize() == 32) {
 			ImgDemo::buildLightmap();
 
@@ -237,100 +234,100 @@ void ImgDemo::processDispatch(QImage const & image)
 
 
 }
-
-void ImgDemo::boxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int kernelSize, bool vertical)
-{
-	std::vector<unsigned char> copy(v);
-	std::vector<unsigned char>::iterator it = copy.begin();
-
-	int offset = vertical ? width : 1;
-
-	size_t sum{ 0 };
-	float avr{0};
-
-	//var used to store the last (closest) valid neighbour, value is used when iterator is out of bounds (kernel wise) on x-y plane
-	size_t lastVal{ 0 };
-	
-	int xCount{ 0 };
-	//possible optimization: keep current neighbours in memory so we dont have to look them up every time (queue?)
-	for (size_t i = 0; i < v.size(); i++)
-	{
-		lastVal = *it;
-		for (int k = 0 - kernelSize/2; k < (kernelSize/2)+1; k++)
-		{
-			if (i + k*offset > 0 
-				&& i + k*offset < width*height
-				&&  k + xCount > 0
-				&& k + xCount < width) {
-					lastVal = *(it + k*offset);
-					sum += lastVal;
-			}
-			else {
-				sum += lastVal;
-			}
-		}
-		avr = sum / kernelSize;
-		sum = 0;
-		v[i] = avr;
-		++it;
-		xCount = (xCount%width) + 1;
-	}
-
-}
-
-void ImgDemo::maxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int kernelSize, bool vertical)
-{
-	std::vector<unsigned char> copy(v);
-	std::vector<unsigned char>::iterator it = copy.begin();
-
-	int offset = vertical ? width : 1;
-
-	//var used to store the last (closest) valid neighbour, value is used when iterator is out of bounds (kernel wise) on x-y plane
-	size_t maxVal{ 0 };
-
-	//possible optimization: keep current neighbours in memory so we dont have to look them up every time (queue?)
-	for (size_t i = 0; i < v.size(); i++)
-	{
-		maxVal = *it;
-		for (int k = 0 - kernelSize / 2; k < (kernelSize / 2) + 1; k++)
-		{
-			if (i + k * offset > 0 && i + k * offset < width*height) {
-				maxVal = *(it + k * offset) > maxVal? *(it + k * offset):maxVal;
-			}
-		}
-		v[i] = maxVal;
-		++it;
-	}
-}
-
-void ImgDemo::uniformize(std::vector<unsigned char>& original, std::vector<unsigned char> const & map)
-{
-	int min = 0;
-	int max = 255;
-
-	std::vector<float> divided{};
-
-	for (size_t i = 0; i < original.size(); i++)
-	{
-		if (map[i] != 0) {
-			double d = (double)original[i] / map[i];
-			divided.push_back(d);
-			if (d > max) { max = d; }
-			if (d < min) { min = d; }
-		}
-		else {
-			divided.push_back(0);
-		}
-	}
-
-	for (size_t i = 0; i < original.size(); i++)
-	{
-		//replace 255 with const var
-		original[i] = ((divided[i] - min) / (max - min))*255;
-	}
-}
-
-
+//
+//void ImgDemo::boxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int kernelSize, bool vertical)
+//{
+//	std::vector<unsigned char> copy(v);
+//	std::vector<unsigned char>::iterator it = copy.begin();
+//
+//	int offset = vertical ? width : 1;
+//
+//	size_t sum{ 0 };
+//	float avr{0};
+//
+//	//var used to store the last (closest) valid neighbour, value is used when iterator is out of bounds (kernel wise) on x-y plane
+//	size_t lastVal{ 0 };
+//	
+//	int xCount{ 0 };
+//	//possible optimization: keep current neighbours in memory so we dont have to look them up every time (queue?)
+//	for (size_t i = 0; i < v.size(); i++)
+//	{
+//		lastVal = *it;
+//		for (int k = 0 - kernelSize/2; k < (kernelSize/2)+1; k++)
+//		{
+//			if (i + k*offset > 0 
+//				&& i + k*offset < width*height
+//				&&  k + xCount > 0
+//				&& k + xCount < width) {
+//					lastVal = *(it + k*offset);
+//					sum += lastVal;
+//			}
+//			else {
+//				sum += lastVal;
+//			}
+//		}
+//		avr = sum / kernelSize;
+//		sum = 0;
+//		v[i] = avr;
+//		++it;
+//		xCount = (xCount%width) + 1;
+//	}
+//
+//}
+//
+//void ImgDemo::maxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int kernelSize, bool vertical)
+//{
+//	std::vector<unsigned char> copy(v);
+//	std::vector<unsigned char>::iterator it = copy.begin();
+//
+//	int offset = vertical ? width : 1;
+//
+//	//var used to store the last (closest) valid neighbour, value is used when iterator is out of bounds (kernel wise) on x-y plane
+//	size_t maxVal{ 0 };
+//
+//	//possible optimization: keep current neighbours in memory so we dont have to look them up every time (queue?)
+//	for (size_t i = 0; i < v.size(); i++)
+//	{
+//		maxVal = *it;
+//		for (int k = 0 - kernelSize / 2; k < (kernelSize / 2) + 1; k++)
+//		{
+//			if (i + k * offset > 0 && i + k * offset < width*height) {
+//				maxVal = *(it + k * offset) > maxVal? *(it + k * offset):maxVal;
+//			}
+//		}
+//		v[i] = maxVal;
+//		++it;
+//	}
+//}
+//
+//void ImgDemo::uniformize(std::vector<unsigned char>& original, std::vector<unsigned char> const & map)
+//{
+//	int min = 0;
+//	int max = 255;
+//
+//	std::vector<float> divided{};
+//
+//	for (size_t i = 0; i < original.size(); i++)
+//	{
+//		if (map[i] != 0) {
+//			double d = (double)original[i] / map[i];
+//			divided.push_back(d);
+//			if (d > max) { max = d; }
+//			if (d < min) { min = d; }
+//		}
+//		else {
+//			divided.push_back(0);
+//		}
+//	}
+//
+//	for (size_t i = 0; i < original.size(); i++)
+//	{
+//		//replace 255 with const var
+//		original[i] = ((divided[i] - min) / (max - min))*255;
+//	}
+//}
+//
+//
 
 
 

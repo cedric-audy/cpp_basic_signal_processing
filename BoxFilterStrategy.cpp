@@ -56,7 +56,6 @@ void BoxFilterStrategy::process()
 					xyCount = 0;
 				}
 			}
-
 		}
 	}
 }
@@ -77,13 +76,10 @@ void BoxFilterStrategy::setVertical(bool b)
 }
 
 BoxFilterStrategy::BoxFilterStrategy()
-	: ProcessStrategy{}, mKernelSize{ 15 }
+	: ProcessStrategy{}, mKernelSize{ 11 }, mVertical{false}
 {
 }
 
 
-BoxFilterStrategy::BoxFilterStrategy(std::vector<Grayscale1DImage> * input, int kernelSize)
-	: ProcessStrategy{ input }, mKernelSize{ kernelSize }, mVertical{false}
-{
-}
+
 

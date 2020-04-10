@@ -5,7 +5,7 @@ class BoxFilterStrategy : public virtual ProcessStrategy
 {
 private:
 	int mKernelSize;
-	bool mVertical{false};
+	bool mVertical;
 
 protected:
 
@@ -15,6 +15,5 @@ public:
 	void setKernelSize(int s);
 	void setVertical(bool b);
 	BoxFilterStrategy();
-	BoxFilterStrategy(std::vector<Grayscale1DImage> * input, int kernelSize);
 };
 

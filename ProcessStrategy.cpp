@@ -21,8 +21,4 @@ void ProcessStrategy::clearInput()
 	mInput->clear();
 }
 
-ProcessStrategy::ProcessStrategy(std::vector<Grayscale1DImage>* input)
-	:mInput{ input }, mOutput{ *(mInput) }
-{
-	
-}
+

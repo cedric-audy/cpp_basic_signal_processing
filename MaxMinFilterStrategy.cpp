@@ -75,14 +75,11 @@ void MaxMinFilterStrategy::setVertical(bool b)
 	mVertical = b;
 }
 MaxMinFilterStrategy::MaxMinFilterStrategy() 
-	:ProcessStrategy{}, mKernelSize{ 15 }, mVertical{ false }, mMaxFilter{ true }
+	:ProcessStrategy{}, mKernelSize{ 11 }, mVertical{ false }, mMaxFilter{ true }
 {
 }
 
-MaxMinFilterStrategy::MaxMinFilterStrategy(std::vector<Grayscale1DImage>* input, int kernelSize, bool vertical)
-	: ProcessStrategy{ input }, mKernelSize{ kernelSize }, mVertical{ vertical }
-{
-}
+
 
 //void MaxMinFilterStrategy::applyd1DBMaxMinFilter(bool vertical)
 //{
