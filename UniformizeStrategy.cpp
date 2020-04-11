@@ -115,6 +115,6 @@ int UniformizeStrategy::min()
 }
 
 UniformizeStrategy::UniformizeStrategy()
-	:ProcessStrategy(), mMax{ 0 }, mMin{999}
+	:ProcessStrategy(), mMax{ 0 }, mMin{255}
 {
 }

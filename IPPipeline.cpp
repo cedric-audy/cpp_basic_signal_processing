@@ -9,6 +9,8 @@
 #include "TresholderStrategy.h"
 #include "SobelDecoupleStrategy.h"
 #include "SobelRecoupleStrategy.h"
+#include "FindCircleStrategy.h"
+
 IPPipeline::IPPipeline()
 	:mCurrImage{2}, mProcesses{ 20 }, currOutput{}
 {
@@ -24,9 +26,6 @@ void IPPipeline::execute()
 	for (auto &p : mProcesses) {
 		if (p != NULL) {
 			p->addInput(lastImg);
-			if (i == 15) { //hardcoded for now
-				p->addInput(mCurrImage.at(0));
-			}
 			p->process();
 			lastImg = p->offerOutput();
 			++i;
@@ -47,32 +46,51 @@ void IPPipeline::addStep(ProcessStrategy * step)
 	UniformizeStrategy * a = new UniformizeStrategy();
 	mProcesses[0] = a;
 
+	BoxFilterStrategy * a1 = new BoxFilterStrategy();
+	BoxFilterStrategy * a11 = new BoxFilterStrategy();
+	a11->setKernelSize(0);
+	a11->setVertical(true);
+	a1->setKernelSize(0);
+
+	mProcesses[1] = a1;
+	mProcesses[2] = a11;
+	mProcesses[3] = a1;
+	mProcesses[4] = a11;
+	mProcesses[5] = a1;
+	mProcesses[6] = a11;
+
 	SobelDecoupleStrategy * a2 = new SobelDecoupleStrategy();
-	mProcesses[1] = a2;
+	mProcesses[7] = a2;
 
 	Tiny1DGaussStrategy * b = new Tiny1DGaussStrategy();
 	b->setVertical(true);
-	mProcesses[2] = b;
+	mProcesses[8] = b;
 
 	DerivativeStrategy * c = new DerivativeStrategy();
 	c->setVertical(true);
-	mProcesses[3] = c;
+	mProcesses[9] = c;
 	
 	Tiny1DGaussStrategy * b2 = new Tiny1DGaussStrategy();
 	b2->setVertical(false);
-	mProcesses[4] = b2;
+	mProcesses[10] = b2;
 
 	DerivativeStrategy * c2 = new DerivativeStrategy();
 	c2->setVertical(false);
-	mProcesses[5] = c2;
+	mProcesses[11] = c2;
 
 	//MeanStrategy * e = new MeanStrategy();
 	SobelRecoupleStrategy * e = new SobelRecoupleStrategy();
-	mProcesses[6] = e;
+	mProcesses[12] = e;
 
 
 	TresholderStrategy * d = new TresholderStrategy();
-	mProcesses[7] = d;
+	mProcesses[13] = d;
+	d->setTreshold(5);
+
+	FindCircleStrategy * f = new FindCircleStrategy();
+	mProcesses[14] = f;
+
+
 
 
 }
@@ -86,6 +104,8 @@ void IPPipeline::defaultLightmapProcess()
 	//GAUSS
 	BoxFilterStrategy * a = new BoxFilterStrategy();
 	BoxFilterStrategy * b = new BoxFilterStrategy();
+	a->setKernelSize(11);
+	b->setKernelSize(11);
 	b->setVertical(true);
 	mProcesses[0] = a;
 	mProcesses[1] = b;
@@ -115,8 +135,8 @@ void IPPipeline::defaultLightmapProcess()
 	BoxFilterStrategy * g = new BoxFilterStrategy();
 	g->setVertical(true);
 
-	f->setKernelSize(99);
-	g->setKernelSize(99);
+	f->setKernelSize(151);
+	g->setKernelSize(151);
 	mProcesses[9] = f;
 	mProcesses[10] = g;
 	mProcesses[11] = f;

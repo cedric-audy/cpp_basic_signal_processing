@@ -33,6 +33,6 @@ void TresholderStrategy::setTreshold(int t)
 }
 
 TresholderStrategy::TresholderStrategy()
-	:ProcessStrategy(), mTreshold{10}, mToBinary{true}
+	:ProcessStrategy(), mTreshold{7}, mToBinary{true}
 {
 }
