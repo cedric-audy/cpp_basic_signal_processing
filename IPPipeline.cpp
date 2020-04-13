@@ -12,7 +12,7 @@
 #include "FindCircleStrategy.h"
 
 IPPipeline::IPPipeline()
-	:mCurrImage{2}, mProcesses{ 20 }, currOutput{}
+	:mCurrImage{ 2 }, mProcesses{ 20 }, currOutput{}, mBlueprint{}
 {
 
 }
@@ -89,61 +89,75 @@ void IPPipeline::addStep(ProcessStrategy * step)
 
 	FindCircleStrategy * f = new FindCircleStrategy();
 	mProcesses[14] = f;
-
-
-
-
 }
 
-void IPPipeline::defaultLightmapProcess()
+
+
+void IPPipeline::defaultLightmapProcess(size_t gauss1, size_t maxfilter, size_t gauss2)
 {
-	//mProcesses.push_back(step);
+	mProcesses.resize(0);
 
-	//some tests
+	IPPipeline::simulGaussianFilter(gauss1);
 
-	//GAUSS
-	BoxFilterStrategy * a = new BoxFilterStrategy();
-	BoxFilterStrategy * b = new BoxFilterStrategy();
-	a->setKernelSize(11);
-	b->setKernelSize(11);
-	b->setVertical(true);
-	mProcesses[0] = a;
-	mProcesses[1] = b;
-	mProcesses[2] = a;
-	mProcesses[3] = b;
-	mProcesses[4] = a;
-	mProcesses[5] = b;
-
-	MeanStrategy * c = new MeanStrategy();
-	mProcesses[6] = c;
+	MeanStrategy * meanStrat = new MeanStrategy();
+	mProcesses.push_back(meanStrat);
 
 	//MAX
 	MaxMinFilterStrategy * d = new MaxMinFilterStrategy();
-	d->setKernelSize(11);
+	d->setKernelSize(maxfilter);
 	d->setVertical(true);
 
 	MaxMinFilterStrategy * e = new MaxMinFilterStrategy();
-	e->setKernelSize(11);
+	e->setKernelSize(maxfilter);
 	e->setVertical(false);
 
-	mProcesses[7] = d;
-	mProcesses[8] = e;
+	mProcesses.push_back(d);
+	mProcesses.push_back(e);
 	///////////
 
-	//GAUSS 
-	BoxFilterStrategy * f = new BoxFilterStrategy();
-	BoxFilterStrategy * g = new BoxFilterStrategy();
-	g->setVertical(true);
+	IPPipeline::simulGaussianFilter(gauss2);
 
-	f->setKernelSize(151);
-	g->setKernelSize(151);
-	mProcesses[9] = f;
-	mProcesses[10] = g;
-	mProcesses[11] = f;
-	mProcesses[12] = g;
-	mProcesses[13] = f;
-	mProcesses[14] = g;
+}
 
+void IPPipeline::simulGaussianFilter(size_t kernel, size_t precision)
+{
+	BoxFilterStrategy * a = new BoxFilterStrategy();
+	BoxFilterStrategy * b = new BoxFilterStrategy();
+	a->setKernelSize(kernel);
+	b->setKernelSize(kernel);
+	b->setVertical(true);
+
+	for (size_t i = 0; i < precision; i++)
+	{
+		mProcesses.push_back(a);
+		mProcesses.push_back(b);
+	}
+}
+
+void IPPipeline::sobelProcess()
+{
+
+	SobelDecoupleStrategy * a = new SobelDecoupleStrategy();
+	mProcesses.push_back(a);
+
+	Tiny1DGaussStrategy * b = new Tiny1DGaussStrategy();
+	b->setVertical(true);
+	mProcesses.push_back(b);
+
+	DerivativeStrategy * c = new DerivativeStrategy();
+	c->setVertical(true);
+	mProcesses.push_back(c);
+
+	Tiny1DGaussStrategy * d = new Tiny1DGaussStrategy();
+	d->setVertical(false);
+	mProcesses.push_back(d);
+
+	DerivativeStrategy * e = new DerivativeStrategy();
+	e->setVertical(false);
+	mProcesses.push_back(e);
+
+	SobelRecoupleStrategy * f = new SobelRecoupleStrategy();
+	mProcesses.push_back(f);
 }
 
 void IPPipeline::setCurrentImage(Grayscale1DImage img, size_t index)
@@ -154,6 +168,52 @@ void IPPipeline::setCurrentImage(Grayscale1DImage img, size_t index)
 
 void IPPipeline::pushImg(Grayscale1DImage img) {
 	mCurrImage.push_back(img);
+}
+
+void IPPipeline::applyStep(std::pair<StepType, filter_args> s) {
+	StepType currStep = s.first;
+	filter_args args = s.second;
+
+	if (currStep == StepType::DEFAULT_LIGHTMAP) {
+		IPPipeline::defaultLightmapProcess(args[0], args[1], args[2]);
+	}
+	else if (currStep == StepType::APPLY_LIGHTMAP) {
+		mProcesses.push_back(new UniformizeStrategy());
+	}
+	else if (currStep == StepType::GAUSS) {
+	
+		IPPipeline::simulGaussianFilter(args[0]);
+	}
+	else if (currStep == StepType::SOBEL) {
+		IPPipeline::sobelProcess();
+	}
+	else if (currStep == StepType::TRESHOLD) {
+		TresholderStrategy * s = new TresholderStrategy();
+		s->setTreshold(args[0]);
+		mProcesses.push_back(s);
+	}
+	else if (currStep == StepType::FIND_CIRCLES) {
+	
+		FindCircleStrategy * f = new FindCircleStrategy();
+		f->setRadius(args[0]);
+		mProcesses.push_back(f);
+	}
+
+}
+
+void IPPipeline::applyBlueprint()
+{
+	const Procedure currSteps = mBlueprint.getSteps();
+	
+	for (auto s : currSteps) {
+		IPPipeline::applyStep(s);
+	}
+
+}
+
+void IPPipeline::setBlueprint(PipelineBlueprint bp)
+{
+	mBlueprint = bp;
 }
 
 

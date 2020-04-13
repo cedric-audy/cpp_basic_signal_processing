@@ -13,6 +13,7 @@
 //CED'S
 #include "Grayscale1DImage.h"
 #include "IPPipeline.h"
+#include "QBlueprintBuilder.h"
 
 
 class ImgDemo : public QMainWindow
@@ -24,17 +25,23 @@ public:
 
 	IPPipeline mLightmapPipeline;
 	IPPipeline mMainPipeline;
+	QBlueprintBuilder * mBPBuilder;
 
 private:
 	Ui::ImgDemoClass ui;
 
-	QPushButton * mConnectButton, *mDisconnectButton, *mCaptureOneButton, *mCaptureContinuouslyButton, *mSaveButton, *mBuildLightmap, *mMainProcess;
+	QPushButton * mConnectButton, *mDisconnectButton, *mCaptureOneButton, *mCaptureContinuouslyButton,
+					*mSaveButton, *mBuildLightmap, *mMainProcess, *mBuildBlueprint;
 	QSimpleImageGrabber mSimpleImageGrabber;
 	QSimpleImageViewer * mInputImage;
 	QSimpleImageViewer * mLightMap;
 	QSimpleImageViewer * mProcessedImage;
 
 	QTimer mTimer;
+
+	PipelineBlueprint lightmapBlueprint;
+	PipelineBlueprint mainBlueprint;
+	
 	bool mCapturingContinuously;
 
 	bool mCreatingMap;
@@ -47,21 +54,19 @@ private slots:
 	void captureOne();
 	void captureContinuously();
 	void processReadyToCapture(bool ready);
-	void buildLightmap();
-	void lightmapReady();
-	void activateMainProcess();
-
 
 	//for testing
+	void blueprint();
+	void startBPBuilder(PipelineBlueprint bp);
+	void buildLightmap();
+	void activateMainProcess();
+	void lightmapReady();
     virtual void processDispatch(QImage const & image);
 	//void boxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int size, bool vertical);
 	//void maxFilter(std::vector<unsigned char> &v, size_t width, size_t height, int size, bool vertical);
 	//void uniformize(std::vector<unsigned char> &original, std::vector<unsigned char> const &map);
 	////
-
-
 	void updateGui();
-
 //!signals:
     //!void imageProcessed(QImage const & image);
 };

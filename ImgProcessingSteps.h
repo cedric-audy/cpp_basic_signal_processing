@@ -1,0 +1,10 @@
+#pragma once
+enum class StepType
+{
+	GAUSS,
+	SOBEL,
+	DEFAULT_LIGHTMAP,
+	TRESHOLD,
+	APPLY_LIGHTMAP,
+	FIND_CIRCLES,
+};

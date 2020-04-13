@@ -1,29 +1,33 @@
 #include "ImgDemo.h"
-
 #include <QCameraInfo>
-
 #include <qdockwidget.h>
 #include <QVBoxLayout>
+
 #include "QSimpleImageGrabber.h"
+#include "PipelineBlueprint.h"
 #include "pixelIterators.h"
 
 ImgDemo::ImgDemo(QWidget *parent)
 	: QMainWindow(parent),
-		mLightmapPipeline{},
-		mMainPipeline{},
-		mConnectButton{ new QPushButton("Connect") },
-		mDisconnectButton{ new QPushButton("Disconnect") },
-		mCaptureOneButton{ new QPushButton("Capture one image") },
-		mCaptureContinuouslyButton{ new QPushButton("Start capture continuously") },
-		mSaveButton{ new QPushButton("Save current image")},
-		mInputImage{ new QSimpleImageViewer },
-		mLightMap{ new QSimpleImageViewer },
-		mProcessedImage{ new QSimpleImageViewer },
-		mBuildLightmap{new QPushButton("Build light map")},
-		mMainProcess{new QPushButton("Run main process")},
-		mCapturingContinuously{ false },
-		mLightmapReady{false},
-		mCreatingMap{false}
+	mLightmapPipeline{},
+	mMainPipeline{},
+	mConnectButton{ new QPushButton("Connect") },
+	mDisconnectButton{ new QPushButton("Disconnect") },
+	mCaptureOneButton{ new QPushButton("Capture one image") },
+	mCaptureContinuouslyButton{ new QPushButton("Start capture continuously") },
+	mSaveButton{ new QPushButton("Save current image") },
+	mInputImage{ new QSimpleImageViewer },
+	mLightMap{ new QSimpleImageViewer },
+	mProcessedImage{ new QSimpleImageViewer },
+	mBuildLightmap{ new QPushButton("Build light map") },
+	mMainProcess{ new QPushButton("Run main process") },
+	mBuildBlueprint{ new QPushButton("Blueprint") },
+	mBPBuilder{ new QBlueprintBuilder() },
+	mCapturingContinuously{ false },
+	mLightmapReady{ false },
+	mCreatingMap{ false },
+	lightmapBlueprint{},
+	mainBlueprint{}
 {
 	ui.setupUi(this);
 
@@ -42,6 +46,7 @@ ImgDemo::ImgDemo(QWidget *parent)
 	hLayout1->addWidget(mSaveButton);
 	hLayout2->addWidget(mMainProcess);
 	hLayout2->addWidget(mBuildLightmap);
+	hLayout2->addWidget(mBuildBlueprint);
 
 
 	QWidget * menuWidget{ new QWidget };
@@ -51,7 +56,7 @@ ImgDemo::ImgDemo(QWidget *parent)
 	layout2->addLayout(hLayout2);
 	menuWidget->setLayout(layout2);
 	floatingBar->setWidget(menuWidget);
-	
+
 	addDockWidget(Qt::DockWidgetArea::TopDockWidgetArea, floatingBar);
 	hLayout3->addWidget(mInputImage);
 	hLayout3->addWidget(mLightMap);
@@ -62,24 +67,34 @@ ImgDemo::ImgDemo(QWidget *parent)
 
 	setCentralWidget(centralWidget);
 
+	//lightmaps
+
+	filter_args a{ 11,11,99 };
+	lightmapBlueprint.addStep(StepType::DEFAULT_LIGHTMAP, a);
+
+	mainBlueprint.addStep(StepType::APPLY_LIGHTMAP, { 0 });
+	mainBlueprint.addStep(StepType::GAUSS, { 3 });
+	mainBlueprint.addStep(StepType::SOBEL, { 0 });
+	mainBlueprint.addStep(StepType::TRESHOLD, { 7 });
+
 	connect(mConnectButton, &QPushButton::clicked, this, &ImgDemo::connectCamera);
 	connect(mDisconnectButton, &QPushButton::clicked, this, &ImgDemo::disconnectCamera);
 	connect(mCaptureOneButton, &QPushButton::clicked, this, &ImgDemo::captureOne);
 
 	//save
 	connect(mSaveButton, &QPushButton::clicked, this, &ImgDemo::saveCurrImg);
-	
+
 	//build lightmap or no
 	connect(mBuildLightmap, &QPushButton::clicked, this, &ImgDemo::lightmapReady);
 	connect(mMainProcess, &QPushButton::clicked, this, &ImgDemo::activateMainProcess);
 
-
+	connect(&mSimpleImageGrabber, &QSimpleImageGrabber::imageCaptured, this, &ImgDemo::processDispatch);
+	connect(mBuildBlueprint, &QPushButton::clicked, this, &ImgDemo::blueprint);
 
 
 	connect(mCaptureContinuouslyButton, &QPushButton::clicked, this, &ImgDemo::captureContinuously);
-	
+
 	connect(&mSimpleImageGrabber, &QSimpleImageGrabber::imageCaptured, mInputImage, &QSimpleImageViewer::setImage);
-	connect(&mSimpleImageGrabber, &QSimpleImageGrabber::imageCaptured, this, &ImgDemo::processDispatch);
 	//connect(&mSimpleImageGrabber, &QSimpleImageGrabber::imageCaptured, this, &ImgDemo::processCapturedImage);
 	connect(&mSimpleImageGrabber, &QSimpleImageGrabber::readyForCaptureChanged, this, &ImgDemo::processReadyToCapture);
 
@@ -88,13 +103,28 @@ ImgDemo::ImgDemo(QWidget *parent)
 
 void ImgDemo::activateMainProcess() {
 
-	mMainPipeline.addStep(NULL);
-	mMainPipeline.execute();
+	//mMainPipeline.addStep(NULL);
+	//mMainPipeline.execute();
 }
+
+void ImgDemo::startBPBuilder(PipelineBlueprint bp)
+{
+	//mBPBuilder->setBlueprint(&bp);
+	//mBPBuilder->showBlueprint();
+	mBPBuilder->setVisible(true);
+}
+
+void ImgDemo::blueprint()
+{
+	startBPBuilder(lightmapBlueprint);
+}
+
+
 
 void ImgDemo::buildLightmap()
 {
-	mLightmapPipeline.defaultLightmapProcess();
+	mLightmapPipeline.setBlueprint(lightmapBlueprint);
+	mLightmapPipeline.applyBlueprint();
 	mLightmapPipeline.execute();
 }
 
@@ -156,17 +186,17 @@ void ImgDemo::updateGui()
 
 void zipData(int * in_beg, int * in_end, unsigned char * out) {
 	//dont know if good practice
-		while (in_beg < in_end) {
+	while (in_beg < in_end) {
 
-			unsigned char average{ *out };
-			*in_beg = (average << 16) |
-				(average << 8) |
-				(average << 0) |
-				0xff'00'00'00;
+		unsigned char average{ *out };
+		*in_beg = (average << 16) |
+			(average << 8) |
+			(average << 0) |
+			0xff'00'00'00;
 
-			++out;
-			++in_beg;
-		}
+		++out;
+		++in_beg;
+	}
 
 }
 
@@ -200,7 +230,7 @@ void ImgDemo::processDispatch(QImage const & image)
 		QImage im(image);
 		mLightmapPipeline.pushImg(im);
 		//hardcoded number of ref imgs
-		if (mLightmapPipeline.inputSize() == 32) {
+		if (mLightmapPipeline.inputSize() == 33) {
 			ImgDemo::buildLightmap();
 
 			unsigned char * out = mLightmapPipeline.getOutputPtr();
@@ -216,21 +246,21 @@ void ImgDemo::processDispatch(QImage const & image)
 			Grayscale1DImage lightmap = im;
 			lightmap.setType(GrayscaleType::LIGHTMAP);
 			mMainPipeline.setCurrentImage(lightmap, 1);
-		}	
+		}
 	}
-	else if (mLightmapReady) {
-		QImage im(image);
-		mMainPipeline.setCurrentImage(im, 0);
-		ImgDemo::activateMainProcess();
+	//else if (mLightmapReady) {
+	//	QImage im(image);
+	//	mMainPipeline.setCurrentImage(im, 0);
+	//	ImgDemo::activateMainProcess();
 
-		unsigned char * out = mMainPipeline.getOutputPtr();
-		int * curpix{ reinterpret_cast<int*>(im.bits()) };
-		int * endpix{ curpix + im.width() * im.height() };
-		zipData(curpix, endpix, out);
+	//	unsigned char * out = mMainPipeline.getOutputPtr();
+	//	int * curpix{ reinterpret_cast<int*>(im.bits()) };
+	//	int * endpix{ curpix + im.width() * im.height() };
+	//	zipData(curpix, endpix, out);
 
-		mProcessedImage->setImage(im);
+	//	mProcessedImage->setImage(im);
 
-	}
+	//}
 
 
 }
@@ -375,4 +405,4 @@ void ImgDemo::processDispatch(QImage const & image)
 	//	++refPix;
 	//}
 
-    //!emit imageProcessed(im);
+	//!emit imageProcessed(im);
