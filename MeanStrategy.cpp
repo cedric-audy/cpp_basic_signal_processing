@@ -7,7 +7,7 @@ void MeanStrategy::process()
 
 	for (size_t i = 0; i < mInput->size(); i++)
 	{
-		input_ptrs.push_back(mInput->at(i).getStart());
+		input_ptrs.push_back(mInput->at(i).getChannel(channelType::GRAY)->getStart());
 	}
 
 	//marche pas !?
@@ -16,12 +16,11 @@ void MeanStrategy::process()
 	//}
 
 	unsigned char * input_end = input_ptrs.at(0) + mInput->at(0).width() * mInput->at(0).height();
-	unsigned char * out = mOutput[0].getStart();
+	unsigned char * out = mOutput[0].getChannel(channelType::GRAY)->getStart();
 
 	size_t nb{ input_ptrs.size() };
 	size_t sum{ 0 };
 	while (input_ptrs.at(0) != input_end) {
-	
 		sum = 0;
 		for (auto& p : input_ptrs) {
 			sum += *p;
@@ -30,9 +29,7 @@ void MeanStrategy::process()
 
 		*out = sum / nb;
 		++out;
-
 	}
-
 }
 
 MeanStrategy::MeanStrategy()

@@ -11,7 +11,7 @@
 
 
 //CED'S
-#include "Grayscale1DImage.h"
+#include "Custom1DImg.h"
 #include "IPPipeline.h"
 #include "QBlueprintBuilder.h"
 

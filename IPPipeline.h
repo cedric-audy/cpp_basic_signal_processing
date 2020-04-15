@@ -1,5 +1,5 @@
 #pragma once
-#include "Grayscale1DImage.h"
+#include "Custom1DImg.h"
 #include "ProcessStrategy.h"
 #include "PipelineBlueprint.h"
 #include <vector>
@@ -9,9 +9,9 @@ class IPPipeline
 {
 private:
 	PipelineBlueprint mBlueprint;
-	std::vector<Img_1D_channel> mCurrImage; //vect of color channels, typically for RGB 24 bits
+	std::vector<Custom1DImg> mCurrImage; //vect of color channels, typically for RGB 24 bits
 	std::vector<ProcessStrategy *> mProcesses; //int for now, eventually ProcessStrategy
-	Img_1D_channel * currOutput;
+	Custom1DImg * currOutput;
 	void defaultLightmapProcess(size_t gauss1, size_t maxfilter, size_t gauss2);
 	void simulGaussianFilter(size_t kernel, size_t precision=3);
 	void sobelProcess();
@@ -26,9 +26,9 @@ public:
 	void execute();
 	int inputSize();
 	void clearInput();
-	void setCurrentImage(Img_1D_channel img, size_t index);
-	void pushImg(Img_1D_channel img);
-	unsigned char * getOutputPtr() { return currOutput->getStart(); }
+	void setCurrentImage(Custom1DImg img, size_t index);
+	void pushImg(Custom1DImg img);
+	Custom1DImg * getOutput() { return currOutput; }
 
 	//blueprint tests
 	void applyBlueprint();

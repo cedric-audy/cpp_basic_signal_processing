@@ -233,7 +233,7 @@ void ImgDemo::processDispatch(QImage const & image)
 		if (mLightmapPipeline.inputSize() == 33) {
 			ImgDemo::buildLightmap();
 
-			unsigned char * out = mLightmapPipeline.getOutputPtr();
+			unsigned char * out = mLightmapPipeline.getOutput()->getChannel(channelType::LIGHTMAP)->getStart();
 			int * curpix{ reinterpret_cast<int*>(im.bits()) };
 			int * endpix{ curpix + im.width() * im.height() };
 			zipData(curpix, endpix, out);
@@ -243,8 +243,8 @@ void ImgDemo::processDispatch(QImage const & image)
 			mLightmapPipeline.clearInput();
 			mCreatingMap = false;
 			mLightmapReady = true;
-			Img_1D_channel lightmap = im;
-			lightmap.setType(channelType::LIGHTMAP);
+			Custom1DImg lightmap = im;
+			//lightmap.setType(channelType::LIGHTMAP);
 			mMainPipeline.setCurrentImage(lightmap, 1);
 		}
 	}

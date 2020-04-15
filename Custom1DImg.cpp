@@ -1,19 +1,7 @@
 #include "Custom1DImg.h"
 
-void Custom1DImg::defaultChannels()
-{
-	Img_1D_channel c{ &mWidth,&mHeight,channelType::CHANNEL1 };
-	channels.push_back(c);
-	c.setType(channelType::CHANNEL2);
-	channels.push_back(c);
-	c.setType(channelType::CHANNEL3);
-	channels.push_back(c);
-	c.setType(channelType::GRAY);
-	channels.push_back(c);
 
-}
-
-Custom1DImg::Custom1DImg(QImage & im, colorSpace cSpace = colorSpace::HSV)
+Custom1DImg::Custom1DImg(QImage & im, colorSpace cSpace)
 	:mWidth{ im.width() }, mHeight{ im.height() }, channels{}, mColorSpace{cSpace}
 {
 	Custom1DImg::defaultChannels();
@@ -47,9 +35,30 @@ Custom1DImg::Custom1DImg(QImage & im, colorSpace cSpace = colorSpace::HSV)
 	}
 }
 
-Img_1D_channel * Custom1DImg::getChannel(channelType ctype)
+void Custom1DImg::defaultChannels()
 {
-	return &(*(std::find(channels.begin(), channels.end(), [&ctype](const channelType c) {return c == ctype; })));
+	Custom1DChannel c{ &mWidth,&mHeight,channelType::CHANNEL1 };
+	channels.push_back(c);
+	c.setType(channelType::CHANNEL2);
+	channels.push_back(c);
+	c.setType(channelType::CHANNEL3);
+	channels.push_back(c);
+	c.setType(channelType::GRAY);
+	channels.push_back(c);
+
+}
+Custom1DChannel * Custom1DImg::getChannel(channelType ctype)
+{
+	//return &(*(std::find(channels.begin(), channels.end(), [&ctype](const channelType c) {return c == ctype; })));
+
+	return nullptr;
 }
 
+void Custom1DImg::makeChannelFrom(channelType from, channelType to){
+
+	//auto fromType{std::find(channels.begin(), channels.end(), [&from](const channelType c) {return c == from; }) };
+	//Custom1DChannel newChannel = *fromType;
+	//newChannel.setType(to);
+	//channels.push_back(newChannel);
+}
 

@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "Grayscale1DImage.h"
+#include "Custom1DImg.h"
 //include stat object
 
 class ProcessStrategy
@@ -8,19 +8,17 @@ class ProcessStrategy
 
 private:
 
-
 protected:
-	//most processes will be 1 in 1 out, but might as well make it as modulary as possible
-	//stat object on pipeline adress?
-	std::vector<Img_1D_channel>* mInput;
-	std::vector<Img_1D_channel> mOutput;
+	std::vector<Custom1DImg>* mInput;
+	std::vector<Custom1DImg> mOutput;
 
 public:
 	virtual void process()=0;
-	std::vector<Img_1D_channel>* offerOutput();
-	void addInput(std::vector<Img_1D_channel>* i);
-	void addInput(Img_1D_channel i);
+	std::vector<Custom1DImg>* offerOutput();
+	void addInput(std::vector<Custom1DImg>* i);
+	void addInput(Custom1DImg i);
 	void clearInput();
-	ProcessStrategy() = default;
 
+	ProcessStrategy() = default;
+	//all else also default
 };

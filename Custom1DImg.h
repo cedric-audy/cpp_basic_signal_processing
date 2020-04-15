@@ -1,7 +1,8 @@
 #pragma once
 #include <algorithm>
 #include <vector>
-#include "Grayscale1DImage.h"
+
+#include "Custom1DChannel.h"
 
 class Custom1DImg
 {
@@ -12,9 +13,11 @@ public:
 		HSV
 	};
 
-	Custom1DImg(QImage & im, colorSpace cSpace = colorSpace::HSV);
+	Custom1DImg() = default;
+	Custom1DImg(QImage & im, colorSpace = colorSpace::HSV);
 
-	Img_1D_channel * getChannel(channelType ctype);
+	Custom1DChannel * getChannel(channelType ctype);
+	void Custom1DImg::makeChannelFrom(channelType from, channelType to);
 
 	void setWidth(size_t w) { mWidth = w; }
 	size_t width() { return mWidth; }
@@ -26,12 +29,12 @@ public:
 	void setColorSpace(colorSpace  cs) { mColorSpace = cs; };
 
 private:
+	colorSpace mColorSpace;
 
 	int mWidth;
 	int mHeight;
 	//color space
-	std::vector<Img_1D_channel> channels;
-	colorSpace mColorSpace;
+	std::vector<Custom1DChannel> channels;
 
 	void defaultChannels();
 
