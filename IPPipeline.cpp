@@ -19,7 +19,7 @@ IPPipeline::IPPipeline()
 
 void IPPipeline::execute()
 {
-	std::vector<Grayscale1DImage>* lastImg{ &mCurrImage };
+	std::vector<Img_1D_channel>* lastImg{ &mCurrImage };
 
 
 	int i{ 0 };
@@ -32,7 +32,7 @@ void IPPipeline::execute()
 		}
 	}
 
-	Grayscale1DImage * output = &(mProcesses[i-1]->offerOutput()->at(0));
+	Img_1D_channel * output = &(mProcesses[i-1]->offerOutput()->at(0));
 	currOutput = output;
 }
 
@@ -160,13 +160,13 @@ void IPPipeline::sobelProcess()
 	mProcesses.push_back(f);
 }
 
-void IPPipeline::setCurrentImage(Grayscale1DImage img, size_t index)
+void IPPipeline::setCurrentImage(Img_1D_channel img, size_t index)
 {
 	//safe?
 	mCurrImage[index] = img;
 }
 
-void IPPipeline::pushImg(Grayscale1DImage img) {
+void IPPipeline::pushImg(Img_1D_channel img) {
 	mCurrImage.push_back(img);
 }
 

@@ -243,8 +243,8 @@ void ImgDemo::processDispatch(QImage const & image)
 			mLightmapPipeline.clearInput();
 			mCreatingMap = false;
 			mLightmapReady = true;
-			Grayscale1DImage lightmap = im;
-			lightmap.setType(GrayscaleType::LIGHTMAP);
+			Img_1D_channel lightmap = im;
+			lightmap.setType(channelType::LIGHTMAP);
 			mMainPipeline.setCurrentImage(lightmap, 1);
 		}
 	}

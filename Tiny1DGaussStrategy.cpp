@@ -4,7 +4,7 @@ void Tiny1DGaussStrategy::process()
 {
 	for (size_t i = 0; i < mInput->size(); i++)
 	{
-		if ((mInput->at(i).type() == GrayscaleType::SOBEL_V) == mVertical) {
+		if ((mInput->at(i).type() == channelType::SOBEL_V) == mVertical) {
 		
 			int width = mInput->at(i).width();
 			int height = mInput->at(i).height();

@@ -5,8 +5,8 @@ bool UniformizeStrategy::isValid()
 	bool hasBasic = false, hasMap = false;
 	for (auto& i: *mInput) {
 
-		if (i.type() == GrayscaleType::BASIC) { hasBasic = true; }
-		else if (i.type() == GrayscaleType::LIGHTMAP) {hasMap = true;}
+		if (i.type() == channelType::GRAY) { hasBasic = true; }
+		else if (i.type() == channelType::LIGHTMAP) {hasMap = true;}
 
 	}
 	return hasBasic && hasMap;
@@ -14,14 +14,14 @@ bool UniformizeStrategy::isValid()
 
 void UniformizeStrategy::process()
 {
-	Grayscale1DImage * map;
-	Grayscale1DImage * image;
+	Img_1D_channel * map;
+	Img_1D_channel * image;
 
 	for (auto& i : *mInput) {
-		if (i.type() == GrayscaleType::BASIC) {
+		if (i.type() == channelType::GRAY) {
 			image = &i;
 		}
-		else if (i.type() == GrayscaleType::LIGHTMAP) {
+		else if (i.type() == channelType::LIGHTMAP) {
 			map = &i;
 		}
 

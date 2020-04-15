@@ -1,17 +1,17 @@
 #include "ProcessStrategy.h"
 
-std::vector<Grayscale1DImage>* ProcessStrategy::offerOutput()
+std::vector<Img_1D_channel>* ProcessStrategy::offerOutput()
 {
 	return &mOutput;
 }
 
-void ProcessStrategy::addInput(std::vector<Grayscale1DImage>* i)
+void ProcessStrategy::addInput(std::vector<Img_1D_channel>* i)
 {
 	mInput = i;
 	mOutput= *(mInput);
 }
 
-void ProcessStrategy::addInput(Grayscale1DImage i) {
+void ProcessStrategy::addInput(Img_1D_channel i) {
 	mInput->push_back(i);
 	mOutput = *(mInput);
 }

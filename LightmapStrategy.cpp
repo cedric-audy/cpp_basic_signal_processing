@@ -7,5 +7,5 @@ LightmapStrategy::LightmapStrategy()
 
 void LightmapStrategy::process()
 {
-	mOutput.at(0).setType(GrayscaleType::LIGHTMAP);
+	mOutput.at(0).setType(channelType::LIGHTMAP);
 }

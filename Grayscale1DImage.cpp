@@ -1,26 +1,27 @@
 #include "Grayscale1DImage.h"
 
 
-Grayscale1DImage::Grayscale1DImage(QImage & im):
-	mImg{}, mWidth{ im.width() }, mHeight{ im.height() }, mType{GrayscaleType::BASIC}
+Img_1D_channel::Img_1D_channel(int * w, int * h, channelType c)
+	: mWidth{ w }, mHeight{ h }, mType{ c } {
+
+}
+
+channelType Img_1D_channel::type()
 {
-	//problem: cant use const ref bc reinterpret_cast wont work, yet there is no need to modify parameter img
-	//probablement pas optimal ... const iterator ?
-	int * curPix{ reinterpret_cast<int*>(im.bits()) };
-	int * endPix{ curPix + im.width() * im.height() };
+	return mType;
+}
 
-	while (curPix < endPix) {
+void Img_1D_channel::setType(channelType g)
+{
+	mType = g;
+}
 
-		int c{ *curPix };
+unsigned char * Img_1D_channel::getStart()
+{
+	return &mVals[0];
+}
 
-		unsigned char r{ static_cast<unsigned char>((c & 0x00'FF'00'00) >> 16) };
-		unsigned char g{ static_cast<unsigned char>((c & 0x00'00'FF'00) >> 8) };
-		unsigned char b{ static_cast<unsigned char>((c & 0x00'00'00'FF) >> 0) };
-
-		int average{ static_cast<int>((float)r * 0.25f + (float)g * 0.67f + (float)b * 0.08f) };
-
-		//note: push back is slow, change to pre initialized vector and use ptrs
-		mImg.push_back(average);
-		++curPix;
-	}
+unsigned char * Img_1D_channel::getEnd()
+{
+	return &mVals[*(mWidth) * *(mHeight)];
 }

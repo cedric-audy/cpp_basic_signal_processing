@@ -8,31 +8,26 @@
 //using LightMap1D = Grayscale1DImage; //so it can be recognized as such within processes without hard coding an index
 
  
-class Grayscale1DImage
+class Img_1D_channel
 {
 
 private:
-	int mWidth;
-	int mHeight;
-	GrayscaleType mType;
+	int * mWidth;
+	int * mHeight;
+	channelType mType;
 
 protected:
-	pixels_t mImg;
+	pixels_t mVals;
 
 public:
-	Grayscale1DImage() = default;
-	Grayscale1DImage(QImage & im);
+	Img_1D_channel() = default;
+	Img_1D_channel(int * w, int * h, channelType c);
 
-	void setWidth(size_t w) { mWidth = w; }
-	size_t width() { return mWidth; }
+	channelType type();
+	void setType(channelType g);
 
-	void setHeight(size_t h) { mHeight = h; }
-	size_t height() { return mHeight; }
+	unsigned char * getStart();
+	unsigned char * getEnd();
 
-	GrayscaleType type() { return mType; }
-	void setType(GrayscaleType g) { mType = g; }
-
-	unsigned char * getStart() { return &mImg[0]; }
-	//iterator pattern ?
 };
 

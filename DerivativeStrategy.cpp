@@ -4,7 +4,7 @@ void DerivativeStrategy::process()
 {
 	for (size_t i = 0; i < mInput->size(); i++)
 	{
-		if ((mInput->at(i).type()==GrayscaleType::SOBEL_V) == mVertical) {
+		if ((mInput->at(i).type()==channelType::SOBEL_V) == mVertical) {
 			int width = mInput->at(i).width();
 			int height = mInput->at(i).height();
 			int offset = mVertical ? width : 1;
