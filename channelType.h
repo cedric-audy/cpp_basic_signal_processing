@@ -1,6 +1,6 @@
 #pragma once
 
-enum channelType
+enum class channelType
 {
 	GRAY, //just a grayscale img
 	CHANNEL1,
@@ -11,5 +11,4 @@ enum channelType
 	SOBEL_H,
 	SOBEL_V,
 	BINARY
-
 };

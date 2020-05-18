@@ -3,7 +3,8 @@
 //#include "MaxMinFilterStrategy.h"
 //#include "UniformizeStrategy.h"
 //#include "LightmapStrategy.h"
-//#include "MeanStrategy.h"
+#include "MeanStrategy.h"
+#include "BoxFilterStrategy.h"
 //#include "DerivativeStrategy.h"
 //#include "Tiny1DGaussStrategy.h"
 //#include "TresholderStrategy.h"
@@ -19,21 +20,23 @@ IPPipeline::IPPipeline()
 
 void IPPipeline::execute()
 {
-	std::vector<Custom1DImg>* lastImg{ &mCurrImage };
+	std::vector<Custom1DImg*> lastImg{};
+	for (auto& i : mCurrImage) {
+		lastImg.push_back(&i);
+	}
 
 
 	int i{ 0 };
 	for (auto &p : mProcesses) {
 		if (p != NULL) {
-			p->addInput(lastImg);
+			p->setInput(lastImg);
 			p->process();
 			lastImg = p->offerOutput();
 			++i;
 		}
 	}
 
-	Custom1DImg * output = &(mProcesses[i-1]->offerOutput()->at(0));
-	currOutput = output;
+	currOutput = mProcesses[i-1]->offerOutput().at(0);
 }
 
 void IPPipeline::clearInput()
@@ -95,12 +98,20 @@ void IPPipeline::addStep(ProcessStrategy * step)
 
 void IPPipeline::defaultLightmapProcess(size_t gauss1, size_t maxfilter, size_t gauss2)
 {
-	//mProcesses.resize(0);
+	mProcesses.resize(0);
 
 	//IPPipeline::simulGaussianFilter(gauss1);
 
-	//MeanStrategy * meanStrat = new MeanStrategy();
-	//mProcesses.push_back(meanStrat);
+	//BoxFilterStrategy * b = new BoxFilterStrategy();
+	//b->setKernelSize(15);
+	//b->setMaxSize(33);
+	//mProcesses.push_back(b);
+
+	MeanStrategy * meanStrat = new MeanStrategy();
+	meanStrat->setMaxSize(33);
+	mProcesses.push_back(meanStrat);
+
+
 
 	////MAX
 	//MaxMinFilterStrategy * d = new MaxMinFilterStrategy();

@@ -3,10 +3,10 @@
 #include <qcombobox.h>
 #include <QVBoxLayout>
 #include <qlineedit.h>
-#include <PipelineBlueprint.h>
+#include"PipelineBlueprint.h"
 #include <qpushbutton.h>
 #include <vector>
-#include <magic_enum.hpp>
+#include "magic_enum.hpp"
 
 class QBlueprintBuilder :
 	public QGroupBox

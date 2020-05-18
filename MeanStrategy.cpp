@@ -1,38 +1,42 @@
 #include "MeanStrategy.h"
 
-void MeanStrategy::process()
+//void MeanStrategy::iterationProcedure(std::vector<unsigned char*> &inputs, std::vector<unsigned char*>& outputs)
+//{
+//	size_t sum = 0;
+//	for (auto& p : inputs) {
+//		sum += *p;
+//		++p;
+//	}
+//
+//	*(outputs[0]) = sum/inputs.size();
+//	++outputs[0];
+//}
+
+unsigned char MeanStrategy::iterationAction(const unsigned char * p)
 {
-	mOutput.resize(1);
-	std::vector<unsigned char *> input_ptrs{};
-
-	for (size_t i = 0; i < mInput->size(); i++)
-	{
-		input_ptrs.push_back(mInput->at(i).getChannel(channelType::GRAY)->getStart());
-	}
-
-	//marche pas !?
-	//for (auto i : *mInput) {
-	//	input_ptrs.push_back(i.getStart());
-	//}
-
-	unsigned char * input_end = input_ptrs.at(0) + mInput->at(0).width() * mInput->at(0).height();
-	unsigned char * out = mOutput[0].getChannel(channelType::GRAY)->getStart();
-
-	size_t nb{ input_ptrs.size() };
-	size_t sum{ 0 };
-	while (input_ptrs.at(0) != input_end) {
+	if (n % max_size == 0) {
 		sum = 0;
-		for (auto& p : input_ptrs) {
-			sum += *p;
-			++p;
-		}
-
-		*out = sum / nb;
-		++out;
+		n = 0;
 	}
+
+	++n;
+	sum += *p;
+	return sum/n;
 }
 
-MeanStrategy::MeanStrategy()
-	:ProcessStrategy()
+
+
+
+
+void MeanStrategy::process()
 {
+	auto [ins, outs] = prepOutput();
+	ConvolutionProcessStrategy::iterate(ins, outs);
+}
+
+
+MeanStrategy::MeanStrategy()
+	:ConvolutionProcessStrategy(), sum{0}, n{0}
+{
+	ConvolutionProcessStrategy::setOneToOne(false);
 }

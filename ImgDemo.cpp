@@ -233,7 +233,7 @@ void ImgDemo::processDispatch(QImage const & image)
 		if (mLightmapPipeline.inputSize() == 33) {
 			ImgDemo::buildLightmap();
 
-			unsigned char * out = mLightmapPipeline.getOutput()->getChannel(channelType::LIGHTMAP)->getStart();
+			unsigned char * out = mLightmapPipeline.getOutput()->getChannel(channelType::GRAY)->getStart();
 			int * curpix{ reinterpret_cast<int*>(im.bits()) };
 			int * endpix{ curpix + im.width() * im.height() };
 			zipData(curpix, endpix, out);

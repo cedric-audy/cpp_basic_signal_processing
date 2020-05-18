@@ -2,8 +2,8 @@
 
 
 Custom1DChannel::Custom1DChannel(int * w, int * h, channelType c)
-	: mWidth{ w }, mHeight{ h }, mType{ c } {
-
+	: mWidth{ w }, mHeight{ h }, mType{ c }, mVals{} {
+	mVals.resize(*mWidth * *mHeight);
 }
 
 channelType Custom1DChannel::type()
