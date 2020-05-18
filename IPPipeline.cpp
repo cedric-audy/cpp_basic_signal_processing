@@ -1,15 +1,16 @@
 #include "IPPipeline.h"
-#include "BoxFilterStrategy.h"
-#include "MaxMinFilterStrategy.h"
-#include "UniformizeStrategy.h"
-#include "LightmapStrategy.h"
+//#include "BoxFilterStrategy.h"
+//#include "MaxMinFilterStrategy.h"
+//#include "UniformizeStrategy.h"
+//#include "LightmapStrategy.h"
 #include "MeanStrategy.h"
-#include "DerivativeStrategy.h"
-#include "Tiny1DGaussStrategy.h"
-#include "TresholderStrategy.h"
-#include "SobelDecoupleStrategy.h"
-#include "SobelRecoupleStrategy.h"
-#include "FindCircleStrategy.h"
+#include "BoxFilterStrategy.h"
+//#include "DerivativeStrategy.h"
+//#include "Tiny1DGaussStrategy.h"
+//#include "TresholderStrategy.h"
+//#include "SobelDecoupleStrategy.h"
+//#include "SobelRecoupleStrategy.h"
+//#include "FindCircleStrategy.h"
 
 IPPipeline::IPPipeline()
 	:mCurrImage{ 2 }, mProcesses{ 20 }, currOutput{}, mBlueprint{}
@@ -19,21 +20,23 @@ IPPipeline::IPPipeline()
 
 void IPPipeline::execute()
 {
-	std::vector<Grayscale1DImage>* lastImg{ &mCurrImage };
+	std::vector<Custom1DImg*> lastImg{};
+	for (auto& i : mCurrImage) {
+		lastImg.push_back(&i);
+	}
 
 
 	int i{ 0 };
 	for (auto &p : mProcesses) {
 		if (p != NULL) {
-			p->addInput(lastImg);
+			p->setInput(lastImg);
 			p->process();
 			lastImg = p->offerOutput();
 			++i;
 		}
 	}
 
-	Grayscale1DImage * output = &(mProcesses[i-1]->offerOutput()->at(0));
-	currOutput = output;
+	currOutput = mProcesses[i-1]->offerOutput().at(0);
 }
 
 void IPPipeline::clearInput()
@@ -43,52 +46,52 @@ void IPPipeline::clearInput()
 
 void IPPipeline::addStep(ProcessStrategy * step)
 {
-	UniformizeStrategy * a = new UniformizeStrategy();
-	mProcesses[0] = a;
+	//UniformizeStrategy * a = new UniformizeStrategy();
+	//mProcesses[0] = a;
 
-	BoxFilterStrategy * a1 = new BoxFilterStrategy();
-	BoxFilterStrategy * a11 = new BoxFilterStrategy();
-	a11->setKernelSize(0);
-	a11->setVertical(true);
-	a1->setKernelSize(0);
+	//BoxFilterStrategy * a1 = new BoxFilterStrategy();
+	//BoxFilterStrategy * a11 = new BoxFilterStrategy();
+	//a11->setKernelSize(0);
+	//a11->setVertical(true);
+	//a1->setKernelSize(0);
 
-	mProcesses[1] = a1;
-	mProcesses[2] = a11;
-	mProcesses[3] = a1;
-	mProcesses[4] = a11;
-	mProcesses[5] = a1;
-	mProcesses[6] = a11;
+	//mProcesses[1] = a1;
+	//mProcesses[2] = a11;
+	//mProcesses[3] = a1;
+	//mProcesses[4] = a11;
+	//mProcesses[5] = a1;
+	//mProcesses[6] = a11;
 
-	SobelDecoupleStrategy * a2 = new SobelDecoupleStrategy();
-	mProcesses[7] = a2;
+	//SobelDecoupleStrategy * a2 = new SobelDecoupleStrategy();
+	//mProcesses[7] = a2;
 
-	Tiny1DGaussStrategy * b = new Tiny1DGaussStrategy();
-	b->setVertical(true);
-	mProcesses[8] = b;
+	//Tiny1DGaussStrategy * b = new Tiny1DGaussStrategy();
+	//b->setVertical(true);
+	//mProcesses[8] = b;
 
-	DerivativeStrategy * c = new DerivativeStrategy();
-	c->setVertical(true);
-	mProcesses[9] = c;
-	
-	Tiny1DGaussStrategy * b2 = new Tiny1DGaussStrategy();
-	b2->setVertical(false);
-	mProcesses[10] = b2;
+	//DerivativeStrategy * c = new DerivativeStrategy();
+	//c->setVertical(true);
+	//mProcesses[9] = c;
+	//
+	//Tiny1DGaussStrategy * b2 = new Tiny1DGaussStrategy();
+	//b2->setVertical(false);
+	//mProcesses[10] = b2;
 
-	DerivativeStrategy * c2 = new DerivativeStrategy();
-	c2->setVertical(false);
-	mProcesses[11] = c2;
+	//DerivativeStrategy * c2 = new DerivativeStrategy();
+	//c2->setVertical(false);
+	//mProcesses[11] = c2;
 
-	//MeanStrategy * e = new MeanStrategy();
-	SobelRecoupleStrategy * e = new SobelRecoupleStrategy();
-	mProcesses[12] = e;
+	////MeanStrategy * e = new MeanStrategy();
+	//SobelRecoupleStrategy * e = new SobelRecoupleStrategy();
+	//mProcesses[12] = e;
 
 
-	TresholderStrategy * d = new TresholderStrategy();
-	mProcesses[13] = d;
-	d->setTreshold(5);
+	//TresholderStrategy * d = new TresholderStrategy();
+	//mProcesses[13] = d;
+	//d->setTreshold(5);
 
-	FindCircleStrategy * f = new FindCircleStrategy();
-	mProcesses[14] = f;
+	//FindCircleStrategy * f = new FindCircleStrategy();
+	//mProcesses[14] = f;
 }
 
 
@@ -97,31 +100,39 @@ void IPPipeline::defaultLightmapProcess(size_t gauss1, size_t maxfilter, size_t 
 {
 	mProcesses.resize(0);
 
-	IPPipeline::simulGaussianFilter(gauss1);
+	//IPPipeline::simulGaussianFilter(gauss1);
+
+	//BoxFilterStrategy * b = new BoxFilterStrategy();
+	//b->setKernelSize(15);
+	//b->setMaxSize(33);
+	//mProcesses.push_back(b);
 
 	MeanStrategy * meanStrat = new MeanStrategy();
+	meanStrat->setMaxSize(33);
 	mProcesses.push_back(meanStrat);
 
-	//MAX
-	MaxMinFilterStrategy * d = new MaxMinFilterStrategy();
-	d->setKernelSize(maxfilter);
-	d->setVertical(true);
 
-	MaxMinFilterStrategy * e = new MaxMinFilterStrategy();
-	e->setKernelSize(maxfilter);
-	e->setVertical(false);
 
-	mProcesses.push_back(d);
-	mProcesses.push_back(e);
-	///////////
+	////MAX
+	//MaxMinFilterStrategy * d = new MaxMinFilterStrategy();
+	//d->setKernelSize(maxfilter);
+	//d->setVertical(true);
 
-	IPPipeline::simulGaussianFilter(gauss2);
+	//MaxMinFilterStrategy * e = new MaxMinFilterStrategy();
+	//e->setKernelSize(maxfilter);
+	//e->setVertical(false);
+
+	//mProcesses.push_back(d);
+	//mProcesses.push_back(e);
+	/////////////
+
+	//IPPipeline::simulGaussianFilter(gauss2);
 
 }
 
 void IPPipeline::simulGaussianFilter(size_t kernel, size_t precision)
 {
-	BoxFilterStrategy * a = new BoxFilterStrategy();
+	/*BoxFilterStrategy * a = new BoxFilterStrategy();
 	BoxFilterStrategy * b = new BoxFilterStrategy();
 	a->setKernelSize(kernel);
 	b->setKernelSize(kernel);
@@ -131,13 +142,13 @@ void IPPipeline::simulGaussianFilter(size_t kernel, size_t precision)
 	{
 		mProcesses.push_back(a);
 		mProcesses.push_back(b);
-	}
+	}*/
 }
 
 void IPPipeline::sobelProcess()
 {
 
-	SobelDecoupleStrategy * a = new SobelDecoupleStrategy();
+	/*SobelDecoupleStrategy * a = new SobelDecoupleStrategy();
 	mProcesses.push_back(a);
 
 	Tiny1DGaussStrategy * b = new Tiny1DGaussStrategy();
@@ -157,16 +168,16 @@ void IPPipeline::sobelProcess()
 	mProcesses.push_back(e);
 
 	SobelRecoupleStrategy * f = new SobelRecoupleStrategy();
-	mProcesses.push_back(f);
+	mProcesses.push_back(f);*/
 }
 
-void IPPipeline::setCurrentImage(Grayscale1DImage img, size_t index)
+void IPPipeline::setCurrentImage(Custom1DImg img, size_t index)
 {
 	//safe?
 	mCurrImage[index] = img;
 }
 
-void IPPipeline::pushImg(Grayscale1DImage img) {
+void IPPipeline::pushImg(Custom1DImg img) {
 	mCurrImage.push_back(img);
 }
 
@@ -178,7 +189,7 @@ void IPPipeline::applyStep(std::pair<StepType, filter_args> s) {
 		IPPipeline::defaultLightmapProcess(args[0], args[1], args[2]);
 	}
 	else if (currStep == StepType::APPLY_LIGHTMAP) {
-		mProcesses.push_back(new UniformizeStrategy());
+		//mProcesses.push_back(new UniformizeStrategy());
 	}
 	else if (currStep == StepType::GAUSS) {
 	
@@ -188,15 +199,15 @@ void IPPipeline::applyStep(std::pair<StepType, filter_args> s) {
 		IPPipeline::sobelProcess();
 	}
 	else if (currStep == StepType::TRESHOLD) {
-		TresholderStrategy * s = new TresholderStrategy();
-		s->setTreshold(args[0]);
-		mProcesses.push_back(s);
+		//TresholderStrategy * s = new TresholderStrategy();
+		//s->setTreshold(args[0]);
+		//mProcesses.push_back(s);
 	}
 	else if (currStep == StepType::FIND_CIRCLES) {
 	
-		FindCircleStrategy * f = new FindCircleStrategy();
-		f->setRadius(args[0]);
-		mProcesses.push_back(f);
+		//FindCircleStrategy * f = new FindCircleStrategy();
+		//f->setRadius(args[0]);
+		//mProcesses.push_back(f);
 	}
 
 }

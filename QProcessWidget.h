@@ -5,8 +5,8 @@
 #include <QLineEdit.h>
 #include <QValidator.h>
 #include <vector>
+#include "magic_enum.hpp"
 
-#include "magic_enum.hpp" //allows me to go from enum to string easily
 #include "PipelineProcedures.h"
 
 class QProcessWidget :

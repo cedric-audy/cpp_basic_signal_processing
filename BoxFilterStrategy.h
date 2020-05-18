@@ -1,19 +1,11 @@
 #pragma once
-#include "ProcessStrategy.h"
-
-class BoxFilterStrategy : public virtual ProcessStrategy
+#include "DirectionnalKernelStrategy.h"
+class BoxFilterStrategy :
+	public DirectionnalKernelStrategy
 {
-private:
-	int mKernelSize;
-	bool mVertical;
-
 protected:
-
+	inline unsigned char iterationAction(const unsigned char * p);
 public:
-	void process();
-	int kernelSize();
-	void setKernelSize(int s);
-	void setVertical(bool b);
 	BoxFilterStrategy();
 };
 

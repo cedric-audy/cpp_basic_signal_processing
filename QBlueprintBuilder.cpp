@@ -29,16 +29,16 @@ void QBlueprintBuilder::applyBlueprint()
 
 	for (auto& s : newBlueprint) {
 	
-		QStringList args{ s.split(':') };
-		auto st = magic_enum::enum_cast<StepType>(args[0].toStdString());
-		args.removeAt(0);
-		filter_args int_args{};
-		for (auto& i : args) {
-			int_args.push_back(i.toInt());
-		}
-		if (st.has_value()) {
-			mBlueprint.addStep(st.value(), int_args);
-		}
+		//QStringList args{ s.split(':') };
+		////auto st = magic_enum::enum_cast<StepType>(args[0].toStdString());
+		//args.removeAt(0);
+		//filter_args int_args{};
+		//for (auto& i : args) {
+		//	int_args.push_back(i.toInt());
+		//}
+		//if (st.has_value()) {
+		//	mBlueprint.addStep(st.value(), int_args);
+		//}
 	}
 	this->setVisible(false);
 

@@ -1,24 +1,28 @@
 #include "ProcessStrategy.h"
 
-std::vector<Grayscale1DImage>* ProcessStrategy::offerOutput()
+std::vector<Custom1DImg*> ProcessStrategy::offerOutput()
 {
-	return &mOutput;
+	std::vector<Custom1DImg*> v{};
+	for (int i = 0; i < mOutput.size(); i++) {
+		v.push_back(&mOutput[i]);
+	}
+	return v;
 }
 
-void ProcessStrategy::addInput(std::vector<Grayscale1DImage>* i)
+
+void ProcessStrategy::addInput(Custom1DImg * i) {
+	mInput.push_back(i);
+}
+
+void ProcessStrategy::setInput(std::vector<Custom1DImg*> i)
 {
+	ProcessStrategy::clearInput();
 	mInput = i;
-	mOutput= *(mInput);
-}
-
-void ProcessStrategy::addInput(Grayscale1DImage i) {
-	mInput->push_back(i);
-	mOutput = *(mInput);
 }
 
 void ProcessStrategy::clearInput()
 {
-	mInput->clear();
+	mInput.clear();
 }
 
 
